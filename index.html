@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App Concept</title>
+    <title>Quiz App - WebRTC & Firebase</title>
     <style>
-        /* Base styles matching the wireframe layout */
         * {
             box-sizing: border-box;
             font-family: Comic Sans MS, "Chalkboard SE", "Comic Neue", sans-serif, Arial;
@@ -20,7 +19,6 @@
             background-color: #ffffff;
         }
 
-        /* Screen containers */
         .screen {
             display: none;
             width: 100vw;
@@ -31,19 +29,37 @@
             position: absolute;
             top: 0;
             left: 0;
+            overflow-y: auto;
+            padding-bottom: 40px;
         }
 
         .screen.active {
             display: flex;
         }
 
-        /* SCREEN 1: MAIN MENU (Drawing.sketchpad.jpg) */
+        /* AUTH SCREEN */
+        #auth-screen {
+            justify-content: center;
+            background-color: #f0f4f8;
+        }
+
+        .auth-card {
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        /* MAIN MENU */
         #main-menu {
             padding-top: 20px;
             background-color: #ffffff;
         }
 
-        /* Search Bar Component */
         .search-bar {
             background-color: #c0f1f7;
             border: 2px solid #000;
@@ -64,7 +80,6 @@
             height: 24px;
         }
 
-        /* Scrolling News Banner */
         .ticker-container {
             width: 85%;
             max-width: 900px;
@@ -74,7 +89,7 @@
             padding: 10px 20px;
             overflow: hidden;
             white-space: nowrap;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .ticker-text {
@@ -88,31 +103,26 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* Grid Layout for Main Buttons */
         .button-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px 40px;
+            gap: 20px 25px;
             width: 85%;
             max-width: 850px;
         }
 
-        /* Concept Button Styles with Colors from wireframe */
         .menu-btn {
             border: 2px solid #000;
             border-radius: 20px;
-            padding: 35px 20px;
-            font-size: 38px;
-            font-weight: normal;
+            padding: 25px 15px;
+            font-size: 28px;
             cursor: pointer;
             text-align: center;
             outline: none;
-            /* Click Zoom effect requirement */
             transition: transform 0.15s ease-in-out;
             user-select: none;
         }
 
-        /* "Buttons Zoom In When Clicked" feature */
         .menu-btn:active, .interactive-btn:active {
             transform: scale(1.15) !important;
         }
@@ -121,49 +131,15 @@
         .btn-green { background-color: #b7e362; color: #000; }
         .btn-pink { background-color: #ff52a9; color: #000; }
         .btn-purple { background-color: #a54bfd; color: #fff; }
+        .btn-orange { background-color: #ff9d3b; color: #000; }
 
-        /* SCREEN 2: PLAY OVERLAY (Drawing-1.sketchpad.jpeg) */
-        #play-screen {
-            background-color: #a846fc;
-            justify-content: center;
-        }
-
-        .play-title {
-            color: #ffffff;
-            font-size: 110px;
-            margin: 0 0 50px 0;
-            font-weight: normal;
-        }
-
-        .search-quizzes-btn {
-            background-color: #b3ea59;
-            color: #ffffff;
-            border: 2px solid #000000;
-            border-radius: 15px;
-            padding: 15px 40px;
-            font-size: 38px;
-            cursor: pointer;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            transition: transform 0.15s ease-in-out;
-        }
-
-        /* EXTRA UTILITY SCREENS FOR GAMEPLAY */
-        #search-screen, #game-screen {
-            background-color: #ffffff;
-            padding: 20px;
-        }
-
-        .quiz-card {
+        .input-box {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 10px;
             border: 2px solid #000;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 10px 0;
             width: 100%;
-            max-width: 500px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f9f9f9;
+            margin-bottom: 15px;
         }
 
         .back-btn {
@@ -176,20 +152,20 @@
             padding: 8px 15px;
             cursor: pointer;
             font-size: 18px;
+            z-index: 10;
         }
 
-        .input-box {
-            font-size: 20px;
-            padding: 10px;
-            border-radius: 10px;
-            border: 2px solid #000;
-            width: 80%;
-            max-width: 400px;
-            margin-bottom: 20px;
+        .user-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .option-btn {
-            width: 100%;
+            width: 90%;
             max-width: 400px;
             padding: 15px;
             margin: 8px 0;
@@ -198,15 +174,32 @@
             font-size: 20px;
             cursor: pointer;
             background-color: #eef;
+            transition: transform 0.15s ease;
         }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: MAIN MENU (Drawing.sketchpad.jpg concept) -->
-    <div id="main-menu" class="screen active">
-        <!-- Search Bar Header -->
-        <div class="search-bar interactive-btn" onclick="openSearch()">
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="screen active">
+        <div class="auth-card">
+            <h2>Welcome to Quiz MMS</h2>
+            <input type="email" id="auth-email" class="input-box" placeholder="Email">
+            <input type="password" id="auth-pass" class="input-box" placeholder="Password">
+            <input type="text" id="auth-username" class="input-box" placeholder="Username (Display Name)">
+            <button class="interactive-btn menu-btn btn-green" style="padding: 10px 30px; font-size: 20px; width: 100%;" id="btn-login">Login</button>
+            <button class="interactive-btn menu-btn btn-blue" style="padding: 10px 30px; font-size: 20px; width: 100%; margin-top: 10px;" id="btn-register">Register</button>
+        </div>
+    </div>
+
+    <!-- MAIN MENU SCREEN -->
+    <div id="main-menu" class="screen">
+        <div class="user-nav">
+            <span id="user-display" style="font-weight: bold;"></span>
+            <button class="interactive-btn" id="btn-logout" style="border: 2px solid #000; border-radius: 8px; padding: 5px 10px; cursor: pointer;">Logout</button>
+        </div>
+
+        <div class="search-bar interactive-btn">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -214,186 +207,276 @@
             <span>Search</span>
         </div>
 
-        <!-- Dynamic Ticker Bar -->
         <div class="ticker-container">
-            <div class="ticker-text" id="ticker-content">
-                Hi, <span id="db-first">Player1</span>! | <span id="db-var1">1,245</span> Quizzes have been played today! | <span id="db-var2">88</span> Quizzes Have Been Made Today!
+            <div class="ticker-text">
+                Hi, <span id="db-username">Player</span>! | Connection Status: <span id="peer-status">Offline</span>
             </div>
         </div>
 
-        <!-- Interactive Zooming Buttons -->
         <div class="button-grid">
-            <button class="menu-btn btn-blue" onclick="loadCategory('New Quizzes')">New Quizzes</button>
-            <button class="menu-btn btn-green" onclick="loadCategory('Popular Quizzes')">Popular Quizzes</button>
-            <button class="menu-btn btn-pink" onclick="loadCategory('Popular Quiz Creators')">Popular Quiz<br>Creators</button>
-            <button class="menu-btn btn-purple" onclick="showScreen('play-screen')">Play</button>
+            <button class="menu-btn btn-blue" id="btn-open-host">Host Quiz</button>
+            <button class="menu-btn btn-orange" id="btn-open-join">Join Room</button>
+            <button class="menu-btn btn-pink" id="btn-open-create">Create Quiz</button>
+            <button class="menu-btn btn-purple" id="btn-open-play">Play Local</button>
         </div>
     </div>
 
-    <!-- SCREEN 2: PURPLE PLAY SCREEN (Drawing-1.sketchpad.jpeg concept) -->
-    <div id="play-screen" class="screen">
-        <h1 class="play-title">Play</h1>
-        <button class="search-quizzes-btn interactive-btn" onclick="openSearch()">Search Quizzes</button>
-        <button class="back-btn" onclick="showScreen('main-menu')" style="top:20px; left:20px;">← Back</button>
+    <!-- HOST ROOM SCREEN -->
+    <div id="host-screen" class="screen">
+        <button class="back-btn screen-nav" data-target="main-menu">← Back</button>
+        <h2 style="margin-top: 60px;">Hosting Room</h2>
+        <h3>Room Code: <span id="room-code-display" style="color: #a54bfd;">---</span></h3>
+        <p>Waiting for a peer to join via WebRTC...</p>
+        <button class="interactive-btn menu-btn btn-green" id="btn-start-p2p-game" style="display:none; padding: 10px 20px; font-size: 20px;">Start P2P Quiz</button>
     </div>
 
-    <!-- SEARCH SCREEN (Functional Component) -->
-    <div id="search-screen" class="screen">
-        <button class="back-btn" onclick="showScreen('main-menu')">← Back</button>
-        <h2 style="margin-top: 60px;">Search Quizzes</h2>
-        <input type="text" id="search-input" class="input-box" placeholder="Type a topic (e.g. Math, Trivia)..." oninput="filterQuizzes()">
-        <div id="quiz-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <!-- Quizzes dynamically injected here -->
+    <!-- JOIN ROOM SCREEN -->
+    <div id="join-screen" class="screen">
+        <button class="back-btn screen-nav" data-target="main-menu">← Back</button>
+        <h2 style="margin-top: 60px;">Join P2P Room</h2>
+        <div style="width: 90%; max-width: 400px;">
+            <input type="text" id="join-code-input" class="input-box" placeholder="Enter 6-Digit Room Code">
+            <button class="interactive-btn menu-btn btn-green" id="btn-connect-room" style="padding: 10px; font-size: 20px; width: 100%;">Connect to Host</button>
         </div>
     </div>
 
     <!-- GAMEPLAY SCREEN -->
     <div id="game-screen" class="screen">
-        <button class="back-btn" onclick="showScreen('search-screen')">Quit</button>
-        <h2 id="game-title" style="margin-top: 60px;">Quiz</h2>
-        <h3 id="question-text" style="font-size: 24px; text-align: center; max-width: 80%;">Question goes here</h3>
+        <button class="back-btn screen-nav" data-target="main-menu">Quit</button>
+        <h2 id="game-title" style="margin-top: 60px;">Live P2P Quiz</h2>
+        <h3 id="question-text" style="font-size: 24px; text-align: center; max-width: 80%;">Waiting for question...</h3>
         <div id="options-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
     </div>
 
-    <script>
-        // Database Variables (Mocking backend DB variables shown in concept)
-        const dbData = {
-            first: "Alex",
-            var1: Math.floor(Math.random() * 5000) + 1000,
-            var2: Math.floor(Math.random() * 200) + 15
+    <!-- FIREBASE MODULE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, get, child } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdA4NrS1Z57dqGoROuN9N-Lafhm-j-rJI",
+            authDomain: "quizmms-8f1bb.firebaseapp.com",
+            projectId: "quizmms-8f1bb",
+            storageBucket: "quizmms-8f1bb.firebasestorage.app",
+            messagingSenderId: "329178974454",
+            appId: "1:329178974454:web:1a5e8470165cd6c3fa44d7",
+            measurementId: "G-Z54PW8WS4C"
         };
 
-        // Popular/New Quiz Data Store
-        const quizzes = [
-            {
-                title: "General Knowledge Trivia",
-                category: "Popular Quizzes",
-                creator: "QuizMaster99",
-                questions: [
-                    { q: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
-                    { q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1 }
-                ]
-            },
-            {
-                title: "Video Game History",
-                category: "New Quizzes",
-                creator: "GamerGirl2000",
-                questions: [
-                    { q: "Who is Mario's brother?", options: ["Wario", "Luigi", "Toad", "Bowser"], correct: 1 },
-                    { q: "Which company created Pokemon?", options: ["Nintendo/Game Freak", "Sony", "Sega", "Microsoft"], correct: 0 }
-                ]
-            },
-            {
-                title: "Math Speed Challenge",
-                category: "Popular Quizzes",
-                creator: "MathGuru",
-                questions: [
-                    { q: "What is 12 x 12?", options: ["124", "144", "164", "122"], correct: 1 }
-                ]
-            }
-        ];
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
-        let currentQuiz = null;
-        let currentQuestionIdx = 0;
-        let score = 0;
-
-        // Initialize dynamic concept variables
-        window.onload = function() {
-            document.getElementById('db-first').innerText = dbData.first;
-            document.getElementById('db-var1').innerText = dbData.var1.toLocaleString();
-            document.getElementById('db-var2').innerText = dbData.var2.toLocaleString();
+        // RTC Configuration for direct P2P connections
+        const rtcConfig = {
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
         };
 
-        // Navigation Function
-        function showScreen(screenId) {
+        let peerConnection = null;
+        let dataChannel = null;
+        let currentUser = null;
+        let currentRoomId = null;
+
+        // UI Navigation Utility
+        function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
-        // Open Search Screen
-        function openSearch() {
-            showScreen('search-screen');
-            renderQuizList(quizzes);
-        }
+        document.querySelectorAll('.screen-nav').forEach(btn => {
+            btn.addEventListener('click', (e) => showScreen(e.target.dataset.target));
+        });
 
-        // Load specific categories
-        function loadCategory(cat) {
-            showScreen('search-screen');
-            if(cat === 'Popular Quiz Creators') {
-                alert("Top Creators:\n1. QuizMaster99\n2. GamerGirl2000\n3. MathGuru");
-                renderQuizList(quizzes);
-            } else {
-                const filtered = quizzes.filter(q => q.category === cat);
-                renderQuizList(filtered.length > 0 ? filtered : quizzes);
+        // 1. AUTHENTICATION LOGIC
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            const username = document.getElementById('auth-username').value;
+
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(userCred.user, { displayName: username });
+                alert("Account created successfully!");
+            } catch (err) {
+                alert("Auth Error: " + err.message);
             }
-        }
+        });
 
-        // Render Quiz Cards
-        function renderQuizList(list) {
-            const container = document.getElementById('quiz-list');
-            container.innerHTML = "";
-            list.forEach((quiz, index) => {
-                const card = document.createElement('div');
-                card.className = 'quiz-card';
-                card.innerHTML = `
-                    <div>
-                        <strong>${quiz.title}</strong><br>
-                        <small>By: ${quiz.creator}</small>
-                    </div>
-                    <button class="interactive-btn" style="background:#b7e362; border:1px solid #000; border-radius:8px; padding:5px 15px; cursor:pointer;" onclick="startQuiz(${index})">Play</button>
-                `;
-                container.appendChild(card);
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                alert("Login Error: " + err.message);
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('db-username').innerText = user.displayName || user.email;
+                document.getElementById('user-display').innerText = `@${user.displayName || 'User'}`;
+                showScreen('main-menu');
+            } else {
+                currentUser = null;
+                showScreen('auth-screen');
+            }
+        });
+
+        // 2. WEBRTC P2P SIGNALING VIA FIREBASE REALTIME DATABASE
+        
+        // HOSTING A ROOM
+        document.getElementById('btn-open-host').addEventListener('click', async () => {
+            showScreen('host-screen');
+            currentRoomId = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('room-code-display').innerText = currentRoomId;
+
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            
+            // Create data channel for high-speed P2P messages
+            dataChannel = peerConnection.createDataChannel("quizChannel");
+            setupDataChannelEvents(dataChannel);
+
+            const roomRef = ref(db, `rooms/${currentRoomId}`);
+            const offerCandidatesRef = ref(db, `rooms/${currentRoomId}/offerCandidates`);
+            const answerCandidatesRef = ref(db, `rooms/${currentRoomId}/answerCandidates`);
+
+            // Listen for ICE Candidates locally and send to Firebase
+            peerConnection.onicecandidate = (e) => {
+                if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON());
+            };
+
+            // Create Offer
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            await set(roomRef, {
+                offer: { type: offer.type, sdp: offer.sdp },
+                host: currentUser.displayName || currentUser.email
             });
+
+            // Listen for Remote Answer
+            onValue(ref(db, `rooms/${currentRoomId}/answer`), async (snapshot) => {
+                const data = snapshot.val();
+                if (data && !peerConnection.currentRemoteDescription) {
+                    const rtcDesc = new RTCSessionDescription(data);
+                    await peerConnection.setRemoteDescription(rtcDesc);
+                }
+            });
+
+            // Listen for Remote ICE Candidates
+            onValue(answerCandidatesRef, (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    const candidate = new RTCIceCandidate(childSnapshot.val());
+                    peerConnection.addIceCandidate(candidate);
+                });
+            });
+        });
+
+        // JOINING A ROOM
+        document.getElementById('btn-open-join').addEventListener('click', () => showScreen('join-screen'));
+
+        document.getElementById('btn-connect-room').addEventListener('click', async () => {
+            const roomCode = document.getElementById('join-code-input').value.trim();
+            if (!roomCode) return alert("Enter a valid code.");
+
+            currentRoomId = roomCode;
+            const roomRef = ref(db, `rooms/${roomCode}`);
+            const roomSnap = await get(roomRef);
+
+            if (!roomSnap.exists()) return alert("Room not found!");
+
+            peerConnection = new RTCPeerConnection(rtcConfig);
+
+            peerConnection.ondatachannel = (e) => {
+                dataChannel = e.channel;
+                setupDataChannelEvents(dataChannel);
+            };
+
+            const offerCandidatesRef = ref(db, `rooms/${roomCode}/offerCandidates`);
+            const answerCandidatesRef = ref(db, `rooms/${roomCode}/answerCandidates`);
+
+            peerConnection.onicecandidate = (e) => {
+                if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON());
+            };
+
+            const roomData = roomSnap.val();
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(roomData.offer));
+
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
+            await set(ref(db, `rooms/${roomCode}/answer`), {
+                type: answer.type,
+                sdp: answer.sdp
+            });
+
+            onValue(offerCandidatesRef, (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    const candidate = new RTCIceCandidate(childSnapshot.val());
+                    peerConnection.addIceCandidate(candidate);
+                });
+            });
+        });
+
+        // 3. P2P DATA CHANNEL COMMUNICATION
+        function setupDataChannelEvents(channel) {
+            channel.onopen = () => {
+                document.getElementById('peer-status').innerText = "Connected (P2P)";
+                if (document.getElementById('host-screen').classList.contains('active')) {
+                    document.getElementById('btn-start-p2p-game').style.display = "inline-block";
+                }
+            };
+
+            channel.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                if (message.type === 'START_QUIZ') {
+                    showScreen('game-screen');
+                    displayP2PQuestion(message.data);
+                }
+            };
+
+            channel.onclose = () => {
+                document.getElementById('peer-status').innerText = "Disconnected";
+            };
         }
 
-        // Search Filter
-        function filterQuizzes() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = quizzes.filter(q => q.title.toLowerCase().includes(query) || q.creator.toLowerCase().includes(query));
-            renderQuizList(filtered);
-        }
+        // Host sends quiz payload directly over WebRTC Data Channel
+        document.getElementById('btn-start-p2p-game').addEventListener('click', () => {
+            if (dataChannel && dataChannel.readyState === 'open') {
+                const payload = {
+                    type: 'START_QUIZ',
+                    data: {
+                        q: "P2P Test: What protocol handles real-time peer data?",
+                        options: ["HTTP", "WebRTC", "FTP", "SMTP"],
+                        correct: 1
+                    }
+                };
+                dataChannel.send(JSON.stringify(payload));
+                showScreen('game-screen');
+                displayP2PQuestion(payload.data);
+            }
+        });
 
-        // Gameplay Engine
-        function startQuiz(index) {
-            currentQuiz = quizzes[index];
-            currentQuestionIdx = 0;
-            score = 0;
-            showScreen('game-screen');
-            document.getElementById('game-title').innerText = currentQuiz.title;
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            const q = currentQuiz.questions[currentQuestionIdx];
-            document.getElementById('question-text').innerText = q.q;
-            const optsContainer = document.getElementById('options-container');
-            optsContainer.innerHTML = "";
-
-            q.options.forEach((opt, idx) => {
+        function displayP2PQuestion(qData) {
+            document.getElementById('question-text').innerText = qData.q;
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            qData.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn interactive-btn';
                 btn.innerText = opt;
-                btn.onclick = () => handleAnswer(idx);
-                optsContainer.appendChild(btn);
+                btn.onclick = () => {
+                    if (idx === qData.correct) alert("Correct!");
+                    else alert("Wrong!");
+                };
+                container.appendChild(btn);
             });
-        }
-
-        function handleAnswer(selectedIdx) {
-            const q = currentQuiz.questions[currentQuestionIdx];
-            if (selectedIdx === q.correct) {
-                alert("Correct!");
-                score++;
-            } else {
-                alert("Wrong!");
-            }
-
-            currentQuestionIdx++;
-            if (currentQuestionIdx < currentQuiz.questions.length) {
-                loadQuestion();
-            } else {
-                alert(`Quiz Finished! Your Score: ${score}/${currentQuiz.questions.length}`);
-                showScreen('main-menu');
-            }
         }
     </script>
 </body>
