@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App Concept</title>
+    <style>
+        /* Base styles matching the wireframe layout */
+        * {
+            box-sizing: border-box;
+            font-family: Comic Sans MS, "Chalkboard SE", "Comic Neue", sans-serif, Arial;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        /* Screen containers */
+        .screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* SCREEN 1: MAIN MENU (Drawing.sketchpad.jpg) */
+        #main-menu {
+            padding-top: 20px;
+            background-color: #ffffff;
+        }
+
+        /* Search Bar Component */
+        .search-bar {
+            background-color: #c0f1f7;
+            border: 2px solid #000;
+            border-radius: 25px;
+            padding: 8px 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            width: 280px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .search-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Scrolling News Banner */
+        .ticker-container {
+            width: 85%;
+            max-width: 900px;
+            background-color: #bbedf9;
+            border: 2px solid #000;
+            border-radius: 30px;
+            padding: 10px 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 50px;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            font-size: 20px;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Grid Layout for Main Buttons */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 40px;
+            width: 85%;
+            max-width: 850px;
+        }
+
+        /* Concept Button Styles with Colors from wireframe */
+        .menu-btn {
+            border: 2px solid #000;
+            border-radius: 20px;
+            padding: 35px 20px;
+            font-size: 38px;
+            font-weight: normal;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            /* Click Zoom effect requirement */
+            transition: transform 0.15s ease-in-out;
+            user-select: none;
+        }
+
+        /* "Buttons Zoom In When Clicked" feature */
+        .menu-btn:active, .interactive-btn:active {
+            transform: scale(1.15) !important;
+        }
+
+        .btn-blue { background-color: #38cbf7; color: #000; }
+        .btn-green { background-color: #b7e362; color: #000; }
+        .btn-pink { background-color: #ff52a9; color: #000; }
+        .btn-purple { background-color: #a54bfd; color: #fff; }
+
+        /* SCREEN 2: PLAY OVERLAY (Drawing-1.sketchpad.jpeg) */
+        #play-screen {
+            background-color: #a846fc;
+            justify-content: center;
+        }
+
+        .play-title {
+            color: #ffffff;
+            font-size: 110px;
+            margin: 0 0 50px 0;
+            font-weight: normal;
+        }
+
+        .search-quizzes-btn {
+            background-color: #b3ea59;
+            color: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 15px;
+            padding: 15px 40px;
+            font-size: 38px;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            transition: transform 0.15s ease-in-out;
+        }
+
+        /* EXTRA UTILITY SCREENS FOR GAMEPLAY */
+        #search-screen, #game-screen {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        .quiz-card {
+            border: 2px solid #000;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #eee;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .input-box {
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #000;
+            width: 80%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            margin: 8px 0;
+            border: 2px solid #000;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #eef;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: MAIN MENU (Drawing.sketchpad.jpg concept) -->
+    <div id="main-menu" class="screen active">
+        <!-- Search Bar Header -->
+        <div class="search-bar interactive-btn" onclick="openSearch()">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Search</span>
+        </div>
+
+        <!-- Dynamic Ticker Bar -->
+        <div class="ticker-container">
+            <div class="ticker-text" id="ticker-content">
+                Hi, <span id="db-first">Player1</span>! | <span id="db-var1">1,245</span> Quizzes have been played today! | <span id="db-var2">88</span> Quizzes Have Been Made Today!
+            </div>
+        </div>
+
+        <!-- Interactive Zooming Buttons -->
+        <div class="button-grid">
+            <button class="menu-btn btn-blue" onclick="loadCategory('New Quizzes')">New Quizzes</button>
+            <button class="menu-btn btn-green" onclick="loadCategory('Popular Quizzes')">Popular Quizzes</button>
+            <button class="menu-btn btn-pink" onclick="loadCategory('Popular Quiz Creators')">Popular Quiz<br>Creators</button>
+            <button class="menu-btn btn-purple" onclick="showScreen('play-screen')">Play</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: PURPLE PLAY SCREEN (Drawing-1.sketchpad.jpeg concept) -->
+    <div id="play-screen" class="screen">
+        <h1 class="play-title">Play</h1>
+        <button class="search-quizzes-btn interactive-btn" onclick="openSearch()">Search Quizzes</button>
+        <button class="back-btn" onclick="showScreen('main-menu')" style="top:20px; left:20px;">← Back</button>
+    </div>
+
+    <!-- SEARCH SCREEN (Functional Component) -->
+    <div id="search-screen" class="screen">
+        <button class="back-btn" onclick="showScreen('main-menu')">← Back</button>
+        <h2 style="margin-top: 60px;">Search Quizzes</h2>
+        <input type="text" id="search-input" class="input-box" placeholder="Type a topic (e.g. Math, Trivia)..." oninput="filterQuizzes()">
+        <div id="quiz-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <!-- Quizzes dynamically injected here -->
+        </div>
+    </div>
+
+    <!-- GAMEPLAY SCREEN -->
+    <div id="game-screen" class="screen">
+        <button class="back-btn" onclick="showScreen('search-screen')">Quit</button>
+        <h2 id="game-title" style="margin-top: 60px;">Quiz</h2>
+        <h3 id="question-text" style="font-size: 24px; text-align: center; max-width: 80%;">Question goes here</h3>
+        <div id="options-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+    </div>
+
+    <script>
+        // Database Variables (Mocking backend DB variables shown in concept)
+        const dbData = {
+            first: "Alex",
+            var1: Math.floor(Math.random() * 5000) + 1000,
+            var2: Math.floor(Math.random() * 200) + 15
+        };
+
+        // Popular/New Quiz Data Store
+        const quizzes = [
+            {
+                title: "General Knowledge Trivia",
+                category: "Popular Quizzes",
+                creator: "QuizMaster99",
+                questions: [
+                    { q: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+                    { q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1 }
+                ]
+            },
+            {
+                title: "Video Game History",
+                category: "New Quizzes",
+                creator: "GamerGirl2000",
+                questions: [
+                    { q: "Who is Mario's brother?", options: ["Wario", "Luigi", "Toad", "Bowser"], correct: 1 },
+                    { q: "Which company created Pokemon?", options: ["Nintendo/Game Freak", "Sony", "Sega", "Microsoft"], correct: 0 }
+                ]
+            },
+            {
+                title: "Math Speed Challenge",
+                category: "Popular Quizzes",
+                creator: "MathGuru",
+                questions: [
+                    { q: "What is 12 x 12?", options: ["124", "144", "164", "122"], correct: 1 }
+                ]
+            }
+        ];
+
+        let currentQuiz = null;
+        let currentQuestionIdx = 0;
+        let score = 0;
+
+        // Initialize dynamic concept variables
+        window.onload = function() {
+            document.getElementById('db-first').innerText = dbData.first;
+            document.getElementById('db-var1').innerText = dbData.var1.toLocaleString();
+            document.getElementById('db-var2').innerText = dbData.var2.toLocaleString();
+        };
+
+        // Navigation Function
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Open Search Screen
+        function openSearch() {
+            showScreen('search-screen');
+            renderQuizList(quizzes);
+        }
+
+        // Load specific categories
+        function loadCategory(cat) {
+            showScreen('search-screen');
+            if(cat === 'Popular Quiz Creators') {
+                alert("Top Creators:\n1. QuizMaster99\n2. GamerGirl2000\n3. MathGuru");
+                renderQuizList(quizzes);
+            } else {
+                const filtered = quizzes.filter(q => q.category === cat);
+                renderQuizList(filtered.length > 0 ? filtered : quizzes);
+            }
+        }
+
+        // Render Quiz Cards
+        function renderQuizList(list) {
+            const container = document.getElementById('quiz-list');
+            container.innerHTML = "";
+            list.forEach((quiz, index) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div>
+                        <strong>${quiz.title}</strong><br>
+                        <small>By: ${quiz.creator}</small>
+                    </div>
+                    <button class="interactive-btn" style="background:#b7e362; border:1px solid #000; border-radius:8px; padding:5px 15px; cursor:pointer;" onclick="startQuiz(${index})">Play</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Search Filter
+        function filterQuizzes() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = quizzes.filter(q => q.title.toLowerCase().includes(query) || q.creator.toLowerCase().includes(query));
+            renderQuizList(filtered);
+        }
+
+        // Gameplay Engine
+        function startQuiz(index) {
+            currentQuiz = quizzes[index];
+            currentQuestionIdx = 0;
+            score = 0;
+            showScreen('game-screen');
+            document.getElementById('game-title').innerText = currentQuiz.title;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = currentQuiz.questions[currentQuestionIdx];
+            document.getElementById('question-text').innerText = q.q;
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = "";
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn interactive-btn';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(idx);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIdx) {
+            const q = currentQuiz.questions[currentQuestionIdx];
+            if (selectedIdx === q.correct) {
+                alert("Correct!");
+                score++;
+            } else {
+                alert("Wrong!");
+            }
+
+            currentQuestionIdx++;
+            if (currentQuestionIdx < currentQuiz.questions.length) {
+                loadQuestion();
+            } else {
+                alert(`Quiz Finished! Your Score: ${score}/${currentQuiz.questions.length}`);
+                showScreen('main-menu');
+            }
+        }
+    </script>
+</body>
+</html>
